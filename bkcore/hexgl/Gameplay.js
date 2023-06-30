@@ -155,6 +155,13 @@ bkcore.hexgl.Gameplay.prototype.start = function(opts)
 	}
 }
 
+function convertToSeconds(h, m, s, ms) {
+	// Calculate the total seconds
+	var totalSeconds = (h * 3600) + (m * 60) + s + (ms / 1000);
+	
+	return totalSeconds;
+}  
+
 bkcore.hexgl.Gameplay.prototype.end = function(result)
 {
 	this.score = this.timer.getElapsedTime();
@@ -174,6 +181,20 @@ bkcore.hexgl.Gameplay.prototype.end = function(result)
 		if(this.hud != null) this.hud.display("Destroyed");
 		this.step = 100;
 	}
+	let something = convertToSeconds(this.score.h, this.score.m, this.score.s, this.score.ms);
+
+	fetch("http://localhost:3000/save-score", {
+		method: "POST",
+		body: JSON.stringify({
+		  "score": something,
+		  "isCompleted": this.lap == this.maxLaps 
+		}),
+		headers: {
+		  "Content-type": "application/json; charset=UTF-8"
+		}
+	  })
+	  .then((res) => res.json())
+	  .then((json) => console.log(json)); 
 }
 
 bkcore.hexgl.Gameplay.prototype.update = function()
